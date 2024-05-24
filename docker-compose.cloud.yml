@@ -1,0 +1,72 @@
+version: '3.7'
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "443:443"
+      - "8443:8443"
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - my-network
+      
+  nginx-proxy-le:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-proxy-le
+    volumes:
+      - ./certs:/etc/nginx/certs:rw
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - nginx-proxy
+    networks:
+      - my-network
+      
+  postgres-db:
+    image: postgres:15.4-alpine3.18
+    environment:
+      POSTGRES_DB: scratch_fhir
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    networks:
+      - my-network
+
+  spring-backend:
+    build:
+      context: ./backend/scratch.fhir
+    image: spring-backend:deploy
+    environment:
+      VIRTUAL_HOST: backend.cardioremote.westeurope.cloudapp.azure.com
+      LETSENCRYPT_HOST: backend.cardioremote.westeurope.cloudapp.azure.com
+      LETSENCRYPT_EMAIL: nex1234us@gmail.com
+    networks:
+      - my-network
+    depends_on:
+      - postgres-db
+
+  react-frontend:
+    build:
+      context: ./frontend
+    image: react-frontend:deploy
+    environment:
+      VIRTUAL_HOST: frontend.cardioremote.westeurope.cloudapp.azure.com
+      LETSENCRYPT_HOST: frontend.cardioremote.westeurope.cloudapp.azure.com
+      LETSENCRYPT_EMAIL: nex1234us@gmail.com
+    ports:
+      - "443:443"
+    networks:
+      - my-network
+
+
+networks:
+  my-network:

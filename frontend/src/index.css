@@ -1,0 +1,19 @@
+@font-face {
+  font-family: 'Cooper Hewitt';
+  src: local('Cooper Hewitt'),
+  url('fonts/CooperHewitt-Book.otf') format('opentype');
+}
+
+body {
+  margin: 0;
+  font-family: 'Cooper Hewitt', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family:  source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
